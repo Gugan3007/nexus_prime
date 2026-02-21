@@ -200,8 +200,15 @@ Certifications Listed: {json.dumps(raw_doc.get('certifications', []))}
 {priorities_str}
 """
 
+        contents = [NEXUS_PRIME_SYSTEM_PROMPT, user_prompt]
+        if "image_data" in raw_doc:
+            contents.append({
+                "mime_type": raw_doc["image_data"]["mime_type"],
+                "data": raw_doc["image_data"]["data"]
+            })
+
         response = model.generate_content(
-            [NEXUS_PRIME_SYSTEM_PROMPT, user_prompt],
+            contents,
             generation_config={
                 "response_mime_type": "application/json",
                 "temperature": 0.1,

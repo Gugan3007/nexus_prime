@@ -190,9 +190,9 @@ async def upload_document(
 ):
     """Upload a PDF/DOCX and extract text for analysis."""
     contents = await file.read()
-    raw_text = extract_text(contents, file.filename)
+    parsed = extract_text(contents, file.filename)
 
-    if raw_text is None:
+    if parsed is None:
         raise HTTPException(status_code=400, detail=f"Unsupported file type: {file.filename}")
 
     try:
@@ -215,7 +215,6 @@ async def upload_document(
         "delivery_terms": "NOT_SPECIFIED",
         "payment_terms": "NOT_SPECIFIED",
         "warranty": "NOT_SPECIFIED",
-        "raw_text": raw_text,
         "fine_print": "",
         "certifications": [],
         "line_items": [],
@@ -225,6 +224,17 @@ async def upload_document(
         "installation_cost": 0,
     }
 
+    if parsed["type"] == "text":
+        raw_doc["raw_text"] = parsed["content"]
+        extracted_text_preview = parsed["content"][:500]
+    else:
+        raw_doc["image_data"] = {
+            "mime_type": parsed["mime_type"],
+            "data": parsed["data"]
+        }
+        raw_doc["raw_text"] = f"[Image Document - Passed to Vision Model: {parsed['mime_type']}]"
+        extracted_text_preview = raw_doc["raw_text"]
+
     result = await run_in_threadpool(analyze_vendor_with_gemini, raw_doc, mi, bp)
     vid = str(uuid.uuid4())
     analysis_store[vid] = result
@@ -233,7 +243,7 @@ async def upload_document(
     return {
         "vendor_id": vid,
         "filename": file.filename,
-        "extracted_text_preview": raw_text[:500],
+        "extracted_text_preview": extracted_text_preview,
         "analysis": result,
     }
 
