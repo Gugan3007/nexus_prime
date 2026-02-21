@@ -1,0 +1,310 @@
+{
+    "vendors": [
+        {
+            "id": "vendor_1",
+            "raw_document": {
+                "vendor_name": "TechCorp Global Industries",
+                "quotation_id": "TCG-2026-00451",
+                "date_issued": "2026-02-10",
+                "valid_until": "2026-04-10",
+                "currency": "USD",
+                "delivery_terms": "4 weeks",
+                "payment_terms": "Net 30",
+                "warranty": "2 years comprehensive",
+                "raw_text": "TechCorp Global Industries - Enterprise Quotation\nISO 9001:2015 Certified | ISO 14001:2018 | Six Sigma Platinum\nAll products comply with RoHS and CE Mark standards.\nTerms: Standard commercial terms apply. Limitation of liability capped at purchase value.",
+                "fine_print": "Prices valid for 60 days from date of issue. Limitation of liability applies to direct damages only.",
+                "certifications": [
+                    "ISO 9001:2015",
+                    "ISO 14001:2018",
+                    "RoHS",
+                    "CE Mark",
+                    "Six Sigma"
+                ],
+                "line_items": [
+                    {
+                        "description": "Enterprise Server Rack Unit (42U)",
+                        "sku": "TCG-SRV-42U",
+                        "quantity": 5,
+                        "unit_price": 4200.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "High-Performance SSD Storage (2TB NVMe)",
+                        "sku": "TCG-SSD-2TN",
+                        "quantity": 20,
+                        "unit_price": 380.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Managed Network Switch (48-Port PoE+)",
+                        "sku": "TCG-NSW-48P",
+                        "quantity": 10,
+                        "unit_price": 1650.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Redundant Power Supply Module",
+                        "sku": "TCG-PSU-RD2",
+                        "quantity": 10,
+                        "unit_price": 520.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Professional Installation & Cabling",
+                        "sku": "TCG-SVC-INS",
+                        "quantity": 1,
+                        "unit_price": 3500.00,
+                        "uom": "Service"
+                    }
+                ],
+                "taxes": {
+                    "GST": 0.18
+                },
+                "shipping_cost": 2800.00,
+                "handling_cost": 450.00,
+                "installation_cost": 0
+            },
+            "market_intelligence": {
+                "brand_tier": "Enterprise",
+                "customer_rating": 4.6,
+                "esg_score": 82,
+                "market_sentiment": "Strong positive momentum. Recent $50M infrastructure contract with Fortune 100 client.",
+                "reviews": [
+                    {
+                        "author": "DataFlow Corp",
+                        "rating": 5,
+                        "sentiment": "positive",
+                        "text": "Outstanding quality and reliable enterprise support."
+                    },
+                    {
+                        "author": "CloudNine Systems",
+                        "rating": 4,
+                        "sentiment": "positive",
+                        "text": "Premium products, slightly slow on delivery but worth the wait."
+                    },
+                    {
+                        "author": "NetStack Inc",
+                        "rating": 5,
+                        "sentiment": "positive",
+                        "text": "Gold standard for data center equipment."
+                    },
+                    {
+                        "author": "Apex Digital",
+                        "rating": 4,
+                        "sentiment": "positive",
+                        "text": "Expensive but unmatched reliability."
+                    },
+                    {
+                        "author": "ByteForge",
+                        "rating": 3,
+                        "sentiment": "neutral",
+                        "text": "Good products but lead time can be an issue."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "vendor_2",
+            "raw_document": {
+                "vendor_name": "QuickSupply Ltd",
+                "quotation_id": "QS-2026-1189",
+                "date_issued": "2026-02-12",
+                "valid_until": "2026-03-12",
+                "currency": "USD",
+                "delivery_terms": "5 business days",
+                "payment_terms": "100% Upfront",
+                "warranty": "6 months limited",
+                "raw_text": "QuickSupply Ltd - Fast Track Quotation\nAll prices subject to market fluctuation and availability.\nPayment must be received in full before order processing begins.\nNo refunds on custom orders. Standard warranty: 6 months parts only.",
+                "fine_print": "Prices subject to change without notice. Non-refundable deposit required. Force majeure clause applies to all delivery commitments. Auto-renewal on service contracts.",
+                "certifications": [
+                    "CE Mark"
+                ],
+                "line_items": [
+                    {
+                        "description": "Server Rack Unit (42U) - Standard",
+                        "sku": "QS-RACK-42",
+                        "quantity": 5,
+                        "unit_price": 3100.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "SSD Storage Drive (2TB NVMe)",
+                        "sku": "QS-SSD-2T",
+                        "quantity": 20,
+                        "unit_price": 290.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Network Switch (48-Port)",
+                        "sku": "QS-SW-48",
+                        "quantity": 10,
+                        "unit_price": 1200.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Power Supply Unit - Redundant",
+                        "sku": "QS-PSU-R",
+                        "quantity": 10,
+                        "unit_price": 380.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Basic Installation Package",
+                        "sku": "QS-INST-B",
+                        "quantity": 1,
+                        "unit_price": 1800.00,
+                        "uom": "Service"
+                    }
+                ],
+                "taxes": {
+                    "State Tax": 0.08,
+                    "Service Tax": 0.05
+                },
+                "shipping_cost": 1200.00,
+                "handling_cost": 300.00,
+                "installation_cost": 0
+            },
+            "market_intelligence": {
+                "brand_tier": "Mid-Market",
+                "customer_rating": 3.2,
+                "esg_score": 41,
+                "market_sentiment": "Mixed reviews. Fast delivery but quality concerns reported by several clients.",
+                "reviews": [
+                    {
+                        "author": "SpeedTech Co",
+                        "rating": 4,
+                        "sentiment": "positive",
+                        "text": "Fastest delivery in the industry."
+                    },
+                    {
+                        "author": "DataFlow Corp",
+                        "rating": 2,
+                        "sentiment": "negative",
+                        "text": "Had quality issues with SSDs, several failed within 3 months."
+                    },
+                    {
+                        "author": "ServerPro",
+                        "rating": 3,
+                        "sentiment": "neutral",
+                        "text": "Decent for budget deployments."
+                    },
+                    {
+                        "author": "CloudNine Systems",
+                        "rating": 3,
+                        "sentiment": "neutral",
+                        "text": "Average products, great speed."
+                    },
+                    {
+                        "author": "Apex Digital",
+                        "rating": 2,
+                        "sentiment": "negative",
+                        "text": "Upfront payment and poor warranty is a dealbreaker."
+                    }
+                ]
+            }
+        },
+        {
+            "id": "vendor_3",
+            "raw_document": {
+                "vendor_name": "GreenTech Solutions",
+                "quotation_id": "GTS-2026-0782",
+                "date_issued": "2026-02-14",
+                "valid_until": "2026-05-14",
+                "currency": "EUR",
+                "delivery_terms": "2 weeks",
+                "payment_terms": "Net 60",
+                "warranty": "3 years premium with on-site support",
+                "raw_text": "GreenTech Solutions - Sustainable IT Infrastructure\nISO 9001:2015 | ISO 14001:2018 | ISO 50001 Energy Management\nAll products are carbon-neutral and manufactured with 80% recycled materials.\nEnergy Star certified. FDA Approved power management systems.",
+                "fine_print": "Standard commercial terms. 30-day satisfaction guarantee. Free returns within 14 days.",
+                "certifications": [
+                    "ISO 9001:2015",
+                    "ISO 14001:2018",
+                    "ISO 50001",
+                    "Energy Star",
+                    "FDA Approved"
+                ],
+                "line_items": [
+                    {
+                        "description": "Eco Server Rack (42U, Carbon Neutral)",
+                        "sku": "GTS-ECO-42U",
+                        "quantity": 5,
+                        "unit_price": 3900.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Green SSD Storage (2TB NVMe, Low Power)",
+                        "sku": "GTS-SSD-2TG",
+                        "quantity": 20,
+                        "unit_price": 350.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Smart Network Switch (48-Port, Energy Optimized)",
+                        "sku": "GTS-NSW-48E",
+                        "quantity": 10,
+                        "unit_price": 1500.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Eco Power Supply Module (95% Efficiency)",
+                        "sku": "GTS-PSU-E95",
+                        "quantity": 10,
+                        "unit_price": 480.00,
+                        "uom": "Units"
+                    },
+                    {
+                        "description": "Premium Installation & Green Audit",
+                        "sku": "GTS-SVC-PRM",
+                        "quantity": 1,
+                        "unit_price": 2800.00,
+                        "uom": "Service"
+                    }
+                ],
+                "taxes": {
+                    "VAT": 0.20
+                },
+                "shipping_cost": 1800.00,
+                "handling_cost": 0,
+                "installation_cost": 0
+            },
+            "market_intelligence": {
+                "brand_tier": "Mid-Market",
+                "customer_rating": 4.4,
+                "esg_score": 94,
+                "market_sentiment": "Rapidly growing. Winner of 2025 Sustainable IT Award. Strong government contracts.",
+                "reviews": [
+                    {
+                        "author": "EcoTech Alliance",
+                        "rating": 5,
+                        "sentiment": "positive",
+                        "text": "Best ESG-compliant IT vendor in the market."
+                    },
+                    {
+                        "author": "GovCloud",
+                        "rating": 5,
+                        "sentiment": "positive",
+                        "text": "Met all government sustainability mandates."
+                    },
+                    {
+                        "author": "DataFlow Corp",
+                        "rating": 4,
+                        "sentiment": "positive",
+                        "text": "Excellent quality and great warranty terms."
+                    },
+                    {
+                        "author": "ServerPro",
+                        "rating": 4,
+                        "sentiment": "positive",
+                        "text": "Slightly pricier but the 3-year warranty makes up for it."
+                    },
+                    {
+                        "author": "ByteForge",
+                        "rating": 4,
+                        "sentiment": "positive",
+                        "text": "Impressive ESG credentials and solid products."
+                    }
+                ]
+            }
+        }
+    ]
+}
