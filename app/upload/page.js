@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { HiOutlineCloudArrowUp, HiOutlineDocumentText, HiOutlineArrowRight, HiOutlineBolt } from 'react-icons/hi2';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function UploadPage() {
     const router = useRouter();

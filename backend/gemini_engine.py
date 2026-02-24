@@ -18,10 +18,7 @@ load_dotenv()
 
 import google.generativeai as genai
 
-# Configure Gemini
-API_KEY = os.getenv("GEMINI_API_KEY")
-if API_KEY:
-    genai.configure(api_key=API_KEY)
+# We will configure genai dynamically inside the analyze function so it always picks up the latest .env without needing a hard restart.
 
 # ─── The Nexus-Prime System Prompt ──────────────────────────────────────
 NEXUS_PRIME_SYSTEM_PROMPT = """
@@ -89,16 +86,16 @@ Return a single, valid JSON object matching this schema exactly. Do NOT include 
       "sku_or_part": "string or null",
       "quantity": number,
       "unit_measure": "string",
-      "unit_price_usd": number,
-      "subtotal_usd": number
+      "unit_price": number,
+      "subtotal": number
     }
   ],
   "commercial_summary": {
-    "total_base_cost_usd": number,
-    "total_tax_usd": number,
+    "total_base_cost": number,
+    "total_tax": number,
     "tax_details": {},
-    "shipping_and_handling_usd": number,
-    "true_total_landed_cost_usd": number,
+    "shipping_and_handling": number,
+    "true_total_landed_cost": number,
     "original_currency_code": "string",
     "normalized_delivery_days": integer,
     "delivery_raw": "string",
@@ -152,12 +149,14 @@ def analyze_with_gemini(
     Send the vendor data to Gemini for AI-powered analysis.
     Returns the structured JSON analysis or None if the call fails.
     """
+    API_KEY = os.getenv("GEMINI_API_KEY")
     if not API_KEY:
         print("[Gemini] No API key configured, skipping AI analysis")
         return None
 
     try:
-        model = genai.GenerativeModel('gemini-2.5-pro')
+        genai.configure(api_key=API_KEY)
+        model = genai.GenerativeModel('gemini-2.5-flash')
 
         # Build the user prompt with all three data streams
         priorities_str = json.dumps(buyer_priorities) if buyer_priorities else json.dumps({
@@ -216,7 +215,11 @@ Certifications Listed: {json.dumps(raw_doc.get('certifications', []))}
         )
 
         result = json.loads(response.text)
-        result["_analysis_source"] = "gemini-1.5-pro"
+        result["_analysis_source"] = "gemini-2.5-flash"
+        
+        # Debug: print what Gemini returned for commercial_summary
+        print(f"[Gemini] Raw commercial_summary: {result.get('commercial_summary', {})}")
+        
         return result
 
     except Exception as e:
@@ -246,15 +249,41 @@ def analyze_vendor_with_gemini(
         gemini_result["document_metadata"].setdefault("integrity_flags", [])
 
         gemini_result.setdefault("line_items", [])
+        
+        # Map line item fields to expected _usd names for frontend compatibility
+        for item in gemini_result.get("line_items", []):
+            if "unit_price" in item and "unit_price_usd" not in item:
+                item["unit_price_usd"] = item.get("unit_price") or 0
+            if "subtotal" in item and "subtotal_usd" not in item:
+                item["subtotal_usd"] = item.get("subtotal") or 0
 
         gemini_result.setdefault("commercial_summary", {})
-        gemini_result["commercial_summary"].setdefault("total_base_cost_usd", 0)
-        gemini_result["commercial_summary"].setdefault("total_tax_usd", 0)
-        gemini_result["commercial_summary"].setdefault("tax_details", {})
-        gemini_result["commercial_summary"].setdefault("shipping_and_handling_usd", 0)
-        gemini_result["commercial_summary"].setdefault("true_total_landed_cost_usd", 0)
-        gemini_result["commercial_summary"].setdefault("original_currency_code", "USD")
-        gemini_result["commercial_summary"].setdefault("normalized_delivery_days", 999)
+        cs = gemini_result["commercial_summary"]
+        
+        # Map non-USD field names to expected _usd field names for frontend compatibility
+        # Gemini may return "total_base_cost" instead of "total_base_cost_usd"
+        if "total_base_cost" in cs and "total_base_cost_usd" not in cs:
+            cs["total_base_cost_usd"] = cs.get("total_base_cost") or 0
+        if "total_tax" in cs and "total_tax_usd" not in cs:
+            cs["total_tax_usd"] = cs.get("total_tax") or 0
+        if "shipping_and_handling" in cs and "shipping_and_handling_usd" not in cs:
+            cs["shipping_and_handling_usd"] = cs.get("shipping_and_handling") or 0
+        if "true_total_landed_cost" in cs and "true_total_landed_cost_usd" not in cs:
+            cs["true_total_landed_cost_usd"] = cs.get("true_total_landed_cost") or 0
+        
+        # Handle null values from Gemini - use actual value or fallback
+        if cs.get("total_base_cost_usd") is None:
+            cs["total_base_cost_usd"] = 0
+        if cs.get("total_tax_usd") is None:
+            cs["total_tax_usd"] = 0
+        cs.setdefault("tax_details", {})
+        if cs.get("shipping_and_handling_usd") is None:
+            cs["shipping_and_handling_usd"] = 0
+        if cs.get("true_total_landed_cost_usd") is None:
+            cs["true_total_landed_cost_usd"] = 0
+        cs.setdefault("original_currency_code", "USD")
+        if cs.get("normalized_delivery_days") is None:
+            cs["normalized_delivery_days"] = 999
         gemini_result["commercial_summary"].setdefault("delivery_raw", raw_doc.get("delivery_terms", "NOT_SPECIFIED"))
         gemini_result["commercial_summary"].setdefault("payment_terms", raw_doc.get("payment_terms", "NOT_SPECIFIED"))
 

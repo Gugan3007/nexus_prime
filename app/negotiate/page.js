@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { HiOutlineChatBubbleLeftRight, HiOutlineClipboardDocument, HiOutlineEnvelope } from 'react-icons/hi2';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function NegotiatePage() {
     const [data, setData] = useState(null);

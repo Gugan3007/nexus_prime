@@ -11,18 +11,63 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 
+import urllib.request
+import json
+import logging
+
 # ─── CURRENCY CONVERSION RATES ─────────────────────────────────────────
-CURRENCY_RATES = {
-    "USD": 1.0,
-    "EUR": 1.08,
-    "GBP": 1.26,
-    "INR": 0.012,
-}
+
+# In-memory cache to avoid rate limits
+_CURRENCY_CACHE: Dict[str, float] = {}
+_CACHE_DATE: str = ""
+
+def _get_live_rate(currency: str) -> float:
+    """Fetch live currency from Frankfurter API, cache it for today."""
+    global _CURRENCY_CACHE, _CACHE_DATE
+    
+    currency = currency.upper()
+    if currency == "USD":
+        return 1.0
+        
+    today = datetime.now().strftime("%Y-%m-%d")
+    
+    # If we have a cached rate from today, use it
+    if _CACHE_DATE == today and currency in _CURRENCY_CACHE:
+        return _CURRENCY_CACHE[currency]
+        
+    # If the day shifted, wipe the cache
+    if _CACHE_DATE != today:
+        _CURRENCY_CACHE.clear()
+        _CACHE_DATE = today
+
+    try:
+        url = f"https://api.frankfurter.app/latest?from={currency}&to=USD"
+        req = urllib.request.Request(url, headers={'User-Agent': 'NexusPrime/1.0'})
+        
+        import ssl
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        
+        with urllib.request.urlopen(req, timeout=5, context=ctx) as response:
+            data = json.loads(response.read().decode())
+            rate = data.get("rates", {}).get("USD", 1.0)
+            _CURRENCY_CACHE[currency] = rate
+            return rate
+    except Exception as e:
+        logging.warning(f"Live currency fetch failed for {currency}: {e}. Using fallback.")
+        # Fallbacks if API fails
+        fallbacks = {
+            "EUR": 1.08,
+            "GBP": 1.26,
+            "INR": 0.012,
+        }
+        return fallbacks.get(currency, 1.0)
 
 
 def _to_usd(amount: float, currency: str) -> float:
-    """Convert amount to USD."""
-    rate = CURRENCY_RATES.get(currency.upper(), 1.0)
+    """Convert amount to USD using live rates."""
+    rate = _get_live_rate(currency)
     return round(amount * rate, 2)
 
 
@@ -632,6 +677,9 @@ def compare_vendors(
     winner = ranked[0]
     runner_up = ranked[1] if len(ranked) > 1 else None
 
+    # Split-award Optimization logic
+    split_award = _calculate_split_award_optimization(vendor_analyses)
+
     # Build comparison matrix
     comparison = {
         "ranked_vendors": [
@@ -649,6 +697,99 @@ def compare_vendors(
         "recommended_vendor": winner["document_metadata"]["vendor_name"],
         "recommendation_justification": _build_justification(winner, runner_up),
         "savings_vs_most_expensive": _calc_savings(ranked),
+        "split_award_optimization": split_award,
+    }
+
+    return comparison
+
+
+def _calculate_split_award_optimization(analyses: List[Dict]) -> Dict:
+    """Finds the mathematically cheapest combination of vendors for overlapping line items."""
+    if len(analyses) < 2:
+        return {"status": "Not enough vendors to split award"}
+
+    # Group items by normalized SKU/description
+    item_catalog = {}
+    
+    for v in analyses:
+        v_name = v["document_metadata"]["vendor_name"]
+        for itm in v["line_items"]:
+            # Use SKU or exact description as unique identifier
+            identifier = str(itm.get("sku_or_part") or itm.get("description", "")).lower().strip()
+            if not identifier or identifier in ["not_specified", "none"]:
+                continue
+                
+            if identifier not in item_catalog:
+                item_catalog[identifier] = []
+                
+            item_catalog[identifier].append({
+                "vendor": v_name,
+                "description": itm.get("description"),
+                "unit_price_usd": itm.get("unit_price_usd", 999999), # Avoid 0s breaking logic
+                "quantity": itm.get("quantity", 1),
+            })
+
+    if not item_catalog:
+        return {"status": "No identifiable overlapping line items found."}
+
+    split_plan = []
+    total_split_base_cost = 0
+    vendors_used = set()
+
+    # Find the cheapest vendor for each unique catalog item
+    for ident, options in item_catalog.items():
+        # Filter out options with None unit prices
+        valid_options = [o for o in options if o.get("unit_price_usd") is not None]
+        if not valid_options:
+            continue
+        # Get the cheapest unit price
+        best_option = min(valid_options, key=lambda x: x["unit_price_usd"])
+        
+        qty = best_option["quantity"]
+        subtotal = best_option["unit_price_usd"] * qty
+        
+        split_plan.append({
+            "item_identifier": ident,
+            "description": best_option["description"],
+            "best_vendor": best_option["vendor"],
+            "unit_price": best_option["unit_price_usd"],
+            "quantity": qty,
+            "subtotal": subtotal
+        })
+        
+        total_split_base_cost += subtotal
+        vendors_used.add(best_option["vendor"])
+
+    # Need to factor in shipping for used vendors
+    total_shipping = 0
+    for v in analyses:
+        if v["document_metadata"]["vendor_name"] in vendors_used:
+            total_shipping += v["commercial_summary"].get("shipping_and_handling_usd", 0)
+
+    estimated_split_total = total_split_base_cost + total_shipping
+
+    # What's the best monolithic cost?
+    best_single_vendor = min(
+        analyses, 
+        key=lambda x: x["commercial_summary"]["true_total_landed_cost_usd"]
+    )
+    best_single_cost = best_single_vendor["commercial_summary"]["true_total_landed_cost_usd"]
+
+    if estimated_split_total < best_single_cost:
+        status = "RECOMMENDED"
+        savings = best_single_cost - estimated_split_total
+    else:
+        status = "NOT_RECOMMENDED"
+        savings = 0
+
+    return {
+        "status": status,
+        "is_split_cheaper": estimated_split_total < best_single_cost,
+        "estimated_split_total_usd": round(estimated_split_total, 2),
+        "best_single_vendor_cost_usd": best_single_cost,
+        "potential_savings_usd": round(savings, 2),
+        "vendors_involved": list(vendors_used),
+        "line_item_assignments": split_plan
     }
 
     return comparison
